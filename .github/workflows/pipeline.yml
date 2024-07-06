@@ -120,6 +120,7 @@ jobs:
 
       - name: Build and Test Rust Code
         run: |
-          cd waka-waka-waku
+          echo "Value of GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          cd $GITHUB_WORKSPACE
           cargo build --release
           cargo run --release
