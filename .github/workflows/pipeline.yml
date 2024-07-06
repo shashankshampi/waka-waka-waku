@@ -123,9 +123,6 @@ jobs:
 
       - name: Build and Test Rust Code
         run: |
-          echo "Value of GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           cd $GITHUB_WORKSPACE
-          echo "Current directory: $(pwd)"
-          ls -al
           cargo build --release
           cargo run --release
