@@ -90,8 +90,8 @@ jobs:
 
       - name: Attach Nodes to Network
         run: |
-          docker network connect --ip 172.18.111.226 waku waku-node1
-          docker network connect --ip 172.18.111.227 waku waku-node2
+          docker network connect --ip 172.18.111.226 waku waku-node1 || true
+          docker network connect --ip 172.18.111.227 waku waku-node2 || true
 
       - name: Verify Auto-Connection
         run: |
