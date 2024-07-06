@@ -120,5 +120,6 @@ jobs:
 
       - name: Build and Test Rust Code
         run: |
+          cd waka-waka-waku
           cargo build --release
           cargo run --release
