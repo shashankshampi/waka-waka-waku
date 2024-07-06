@@ -13,6 +13,13 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      - name: Stop and Remove Previous Containers (if any)
+        run: |
+          docker stop waku-node1 || true
+          docker stop waku-node2 || true
+          docker rm waku-node1 || true
+          docker rm waku-node2 || true
+
       - name: Create Docker Network
         run: docker network create --driver bridge --subnet 172.18.0.0/16 --gateway 172.18.0.1 waku
 
