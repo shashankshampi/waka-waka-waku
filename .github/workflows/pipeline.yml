@@ -1,4 +1,4 @@
-name: Waku Nodes Setup and Verification
+name: Waku Nodes Setup, Verification, and Rust Tests
 
 on:
   push:
@@ -112,3 +112,13 @@ jobs:
             echo "Nodes failed to connect within the given time."
             exit 1
           fi
+
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+      - name: Build and Test Rust Code
+        run: |
+          cargo build --release
+          cargo run --release
