@@ -1,0 +1,29 @@
+*.class
+*.db
+*.iml
+Thumbs.db
+.DS_Store
+logs/
+tmpTestData/
+
+###################### Eclipse ######################
+
+*.pydevproject
+.project
+.metadata
+.classpath
+.settings/
+.loadpath
+
+###################### Intellij Idea ######################
+.html
+.idea/
+.idea/compiler.xml
+############ Common #########
+*.sync
+target/
+/reports/
+src/main/resources/config/temp-env.json
+src/main/java/grpc
+src/main/resources/config/temp-env.json
+

@@ -1,0 +1,107 @@
+name: Waku Nodes Setup and Verification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  start-waku-nodes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create Docker Network
+        run: docker network create --driver bridge --subnet 172.18.0.0/16 --gateway 172.18.0.1 waku
+
+      - name: Start Waku Node 1
+        run: |
+          docker run -d --name waku-node1 \
+            --network waku \
+            --ip 172.18.111.226 \
+            -p 21161:21161 \
+            -p 21162:21162 \
+            -p 21163:21163 \
+            -p 21164:21164 \
+            -p 21165:21165 \
+            wakuorg/nwaku:v0.24.0 \
+            --listen-address=0.0.0.0 \
+            --rest=true \
+            --rest-admin=true \
+            --websocket-support=true \
+            --log-level=TRACE \
+            --rest-relay-cache-capacity=100 \
+            --websocket-port=21163 \
+            --rest-port=21161 \
+            --tcp-port=21162 \
+            --discv5-udp-port=21164 \
+            --rest-address=0.0.0.0 \
+            --nat=extip:172.18.111.226 \
+            --peer-exchange=true \
+            --discv5-discovery=true \
+            --relay=true
+
+      - name: Verify Waku Node 1 Info
+        id: verify-node1
+        run: |
+          sleep 5
+          response=$(curl -s --location 'http://localhost:21161/debug/v1/info')
+          echo "$response"
+          echo "::set-output name=enrUri::$(echo $response | jq -r '.enrUri')"
+        env:
+          GITHUB_OUTPUT: ${{ steps.verify-node1.outputs.enrUri }}
+
+      - name: Start Waku Node 2
+        run: |
+          docker run -d --name waku-node2 \
+            --network waku \
+            --ip 172.18.111.227 \
+            -p 21261:21161 \
+            -p 21262:21162 \
+            -p 21263:21163 \
+            -p 21264:21164 \
+            -p 21265:21165 \
+            wakuorg/nwaku:v0.24.0 \
+            --listen-address=0.0.0.0 \
+            --rest=true \
+            --rest-admin=true \
+            --websocket-support=true \
+            --log-level=TRACE \
+            --rest-relay-cache-capacity=100 \
+            --websocket-port=21263 \
+            --rest-port=21161 \
+            --tcp-port=21262 \
+            --discv5-udp-port=21264 \
+            --rest-address=0.0.0.0 \
+            --nat=extip:172.18.111.227 \
+            --peer-exchange=true \
+            --discv5-discovery=true \
+            --relay=true \
+            --discv5-bootstrap-node=${{ steps.verify-node1.outputs.enrUri }}
+
+      - name: Attach Nodes to Network
+        run: |
+          docker network connect --ip 172.18.111.226 waku waku-node1
+          docker network connect --ip 172.18.111.227 waku waku-node2
+
+      - name: Verify Auto-Connection
+        run: |
+          connected=false
+          for i in {1..20}; do
+            sleep 60
+            response=$(curl -s --location 'http://localhost:21161/admin/v1/peers')
+            echo "$response"
+            if echo $response | jq -e '.[] | select(.protocols[] | .connected == true)' > /dev/null; then
+              connected=true
+              break
+            fi
+          done
+          
+          if [ "$connected" == "true" ]; then
+            echo "Nodes are connected successfully!"
+          else
+            echo "Nodes failed to connect within the given time."
+            exit 1
+          fi
