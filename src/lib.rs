@@ -188,6 +188,56 @@ pub async fn confirm_message_publication(topic: &str, expected_message: &Publish
     Ok(())
 }
 
+/// Confirms that a message has been published to a specified topic by making an HTTP GET request to the node's messages endpoint.
+///
+/// # Parameters
+///
+/// - `topic`: A string slice representing the topic to check for published messages.
+/// - `expected_message`: A reference to a `PublishMessage` struct representing the expected message to confirm.
+///
+/// # Returns
+///
+/// - `Ok(())` if the expected message is found in the list of published messages.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response, or if the message is not found.
+pub async fn confirm_message_publication_from_node2(topic: &str, expected_message: &PublishMessage) -> Result<(), Box<dyn Error>> {
+    let encoded_topic = urlencoding::encode(topic);
+    let url = format!("http://127.0.0.1:21161/relay/v1/auto/messages/{}", encoded_topic);
+    let client = Client::new();
+
+    println!("\nEquivalent curl command:\n");
+    println!("curl --location '{}'", url);
+    println!();
+
+    let response = client.get(&url).send().await?;
+
+    if response.status().is_success() {
+        let body = response.text().await?;
+        println!("confirm_message_publication body: {}", body);
+
+        let published_messages: Vec<PublishedMessage> = serde_json::from_str(&body)?;
+
+        let mut found = false;
+        for msg in published_messages {
+            if msg.payload == expected_message.payload
+                && msg.content_topic == expected_message.content_topic {
+                println!("Confirmed message publication for topic: {}", topic);
+                println!("Published message details: {:?}", msg);
+                found = true;
+                break;
+            }
+        }
+
+        if !found {
+            println!("Published message for topic {} not found in response.", topic);
+        }
+    } else {
+        println!("Failed to confirm message publication for topic {}: {}", topic, response.status());
+        println!("Response body: {:?}", response.text().await?);
+    }
+
+    Ok(())
+}
+
 /// Verifies if Node 2 is auto-connected by making an HTTP GET request to the node's peers endpoint.
 ///
 /// # Returns
