@@ -54,6 +54,19 @@
 ## Overview
 waka-waka-waku serves as the testing hub for waku. This rust-based repository excels in conducting functional, integration, and regression tests. Furthermore, its versatility extends to scalability, seamlessly integrating with the Scala-based Gatling repository for rigorous performance testing.
 
+Framework structure
+```html
+waka-waka-waku/
+├── Cargo.toml
+├── .github/
+│   ├── workflows/
+│       └── pipeline.yml
+├── src/
+│   ├── lib.rs
+│   └── main.rs
+└── tests/
+    └── integration_tests.rs
+```
 
 ## Features
 
@@ -91,7 +104,8 @@ To start with this project you need to follow the steps as below.
 Before you begin, ensure you have the following installed:
 - Rust 1.66+
 - Docker
-- # Library used
+
+### Library used
  ```
  - reqwest
  - serde
