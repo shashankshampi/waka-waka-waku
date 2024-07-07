@@ -126,3 +126,5 @@ jobs:
           cd $GITHUB_WORKSPACE
           cargo build --release
           cargo run --release
+          cargo test
+
