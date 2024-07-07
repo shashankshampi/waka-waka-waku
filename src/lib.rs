@@ -2,23 +2,31 @@ use serde::{Deserialize, Serialize};
 use std::error::Error;
 use reqwest::{Client, header};
 
+/// Represents a message to be published.
 #[derive(Debug, Serialize, Clone)]
 pub struct PublishMessage {
-    pub payload: String,
+    pub payload: String,                     // The payload of the message, base64 encoded.
     #[serde(rename = "contentTopic")]
-    pub content_topic: String,
-    pub timestamp: u64,
+    pub content_topic: String,               // The topic to which the message will be published.
+    pub timestamp: u64,                      // The timestamp of the message in milliseconds since epoch.
 }
 
+/// Represents a message that has been published.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublishedMessage {
-    pub payload: String,
+    pub payload: String,                     // The payload of the published message, base64 encoded.
     #[serde(rename = "contentTopic")]
-    pub content_topic: String,
-    pub version: u64,
-    pub timestamp: u64,
+    pub content_topic: String,               // The topic under which the message is published.
+    pub version: u64,                        // The version of the published message.
+    pub timestamp: u64,                      // The timestamp of the message in milliseconds since epoch.
 }
 
+/// Verifies node information by making an HTTP GET request to the node's info endpoint.
+///
+/// # Returns
+///
+/// - `Ok(())` if the node information is retrieved successfully.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response.
 pub async fn verify_node_info() -> Result<(), Box<dyn Error>> {
     let url = "http://localhost:21161/debug/v1/info";
     let client = Client::new();
@@ -39,6 +47,16 @@ pub async fn verify_node_info() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Subscribes to a specified topic by making an HTTP POST request to the node's subscriptions endpoint.
+///
+/// # Parameters
+///
+/// - `topic`: A string slice that holds the name of the topic to subscribe to.
+///
+/// # Returns
+///
+/// - `Ok(())` if the subscription is successful.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response.
 pub async fn subscribe_to_topic(topic: &str) -> Result<(), Box<dyn Error>> {
     let url = "http://localhost:21161/relay/v1/auto/subscriptions";
     let client = Client::new();
@@ -76,6 +94,16 @@ pub async fn subscribe_to_topic(topic: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Publishes a message to a specified topic by making an HTTP POST request to the node's messages endpoint.
+///
+/// # Parameters
+///
+/// - `message`: The `PublishMessage` struct containing the message details to be published.
+///
+/// # Returns
+///
+/// - `Ok(())` if the message is published successfully.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response.
 pub async fn publish_message(message: PublishMessage) -> Result<(), Box<dyn Error>> {
     let url = "http://127.0.0.1:21161/relay/v1/auto/messages";
     let client = Client::new();
@@ -110,6 +138,17 @@ pub async fn publish_message(message: PublishMessage) -> Result<(), Box<dyn Erro
     Ok(())
 }
 
+/// Confirms that a message has been published to a specified topic by making an HTTP GET request to the node's messages endpoint.
+///
+/// # Parameters
+///
+/// - `topic`: A string slice representing the topic to check for published messages.
+/// - `expected_message`: A reference to a `PublishMessage` struct representing the expected message to confirm.
+///
+/// # Returns
+///
+/// - `Ok(())` if the expected message is found in the list of published messages.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response, or if the message is not found.
 pub async fn confirm_message_publication(topic: &str, expected_message: &PublishMessage) -> Result<(), Box<dyn Error>> {
     let encoded_topic = urlencoding::encode(topic);
     let url = format!("http://127.0.0.1:21161/relay/v1/auto/messages/{}", encoded_topic);
@@ -149,6 +188,12 @@ pub async fn confirm_message_publication(topic: &str, expected_message: &Publish
     Ok(())
 }
 
+/// Verifies if Node 2 is auto-connected by making an HTTP GET request to the node's peers endpoint.
+///
+/// # Returns
+///
+/// - `Ok(())` if Node 2 is connected and the protocol details are available.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response, or if Node 2 is not connected.
 pub async fn verify_node2_autoconnection() -> Result<(), Box<dyn Error>> {
     let url = "http://localhost:21261/admin/v1/peers";
     let client = Client::new();
@@ -178,6 +223,16 @@ pub async fn verify_node2_autoconnection() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Subscribes Node 2 to a specified topic by making an HTTP POST request to Node 2's subscriptions endpoint.
+///
+/// # Parameters
+///
+/// - `topic`: A string slice representing the topic to which Node 2 should subscribe.
+///
+/// # Returns
+///
+/// - `Ok(())` if the subscription is successful.
+/// - `Err(Box<dyn Error>)` if there is an error in making the request or processing the response.
 pub async fn subscribe_node2_to_topic(topic: &str) -> Result<(), Box<dyn Error>> {
     let url = "http://localhost:21261/relay/v1/auto/subscriptions";
     let client = Client::new();
@@ -215,7 +270,13 @@ pub async fn subscribe_node2_to_topic(topic: &str) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
-pub async fn execute_tests() -> Result<(), Box<dyn Error>> {
+/// Test suite 1 that performs a series of actions such as verifying node info, subscribing to topics, publishing messages, and confirming message publication.
+///
+/// # Returns
+///
+/// - `Ok(())` if all actions in the test suite are completed successfully.
+/// - `Err(Box<dyn Error>)` if there is an error in any of the actions.
+pub async fn test_suite_1() -> Result<(), Box<dyn Error>> {
     if let Err(e) = verify_node_info().await {
         eprintln!("Error verifying node info: {}", e);
     }
@@ -237,6 +298,39 @@ pub async fn execute_tests() -> Result<(), Box<dyn Error>> {
     if let Err(e) = confirm_message_publication("/my-app/2/chatroom-1/proto", &message).await {
         eprintln!("Error confirming message publication: {}", e);
     }
+
+    if let Err(e) = verify_node2_autoconnection().await {
+        eprintln!("Error verifying Node 2 autoconnection: {}", e);
+    }
+
+    if let Err(e) = subscribe_node2_to_topic("/my-app/2/chatroom-1/proto").await {
+        eprintln!("Error subscribing Node 2 to topic: {}", e);
+    }
+
+    if let Err(e) = publish_message(message.clone()).await {
+        eprintln!("Error publishing message from Node 1: {}", e);
+    }
+
+    if let Err(e) = confirm_message_publication("/my-app/2/chatroom-1/proto", &message).await {
+        eprintln!("Error confirming message publication for Node 2: {}", e);
+    }
+
+    Ok(())
+}
+
+/// Test suite 2 that performs actions to verify Node 2's autoconnection, subscribes to topics, publishes messages, and confirms message publication.
+///
+/// # Returns
+///
+/// - `Ok(())` if all actions in the test suite are completed successfully.
+/// - `Err(Box<dyn Error>)` if there is an error in any of the actions.
+pub async fn test_suite_2() -> Result<(), Box<dyn Error>> {
+
+    let message = PublishMessage {
+        payload: "UmVsYXkgd29ya3MhIQ==".to_string(),
+        content_topic: "/my-app/2/chatroom-1/proto".to_string(),
+        timestamp: 0,
+    };
 
     if let Err(e) = verify_node2_autoconnection().await {
         eprintln!("Error verifying Node 2 autoconnection: {}", e);
