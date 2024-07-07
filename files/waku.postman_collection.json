@@ -1,0 +1,276 @@
+{
+	"info": {
+		"_postman_id": "c703a94a-763e-4de3-895d-632ac19aeb8c",
+		"name": "waku",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20600295"
+	},
+	"item": [
+		{
+			"name": "Test Suite 1",
+			"item": [
+				{
+					"name": "Verify Node Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:21161/debug/v1/info",
+							"host": [
+								"localhost"
+							],
+							"port": "21161",
+							"path": [
+								"debug",
+								"v1",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to a Topic",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "text/plain"
+							},
+							{
+								"key": "content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\"/my-app/2/chatroom-1/proto\"]"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:21161/relay/v1/auto/subscriptions",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21161",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish a Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payload\": \"UmVsYXkgd29ya3MhIQ==\",\n    \"contentTopic\": \"/my-app/2/chatroom-1/proto\",\n    \"timestamp\": 0\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:21161/relay/v1/auto/messages",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21161",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Message Publication",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:21161/relay/v1/auto/messages/%2Fmy-app%2F2%2Fchatroom-1%2Fproto",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21161",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"messages",
+								"%2Fmy-app%2F2%2Fchatroom-1%2Fproto"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Test Suite 2 (Node 2)",
+			"item": [
+				{
+					"name": "Verify Node2 Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:21261/debug/v1/info",
+							"host": [
+								"localhost"
+							],
+							"port": "21261",
+							"path": [
+								"debug",
+								"v1",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Autoconnection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:21161/admin/v1/peers",
+							"host": [
+								"localhost"
+							],
+							"port": "21161",
+							"path": [
+								"admin",
+								"v1",
+								"peers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subscribe to a Topic Node2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "text/plain"
+							},
+							{
+								"key": "content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\"/my-app/2/chatroom-1/proto\"]"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:21261/relay/v1/auto/subscriptions",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21261",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publish a Message Node2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "content-type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payload\": \"UmVsYXkgd29ya3MhIQ==\",\n    \"contentTopic\": \"/my-app/2/chatroom-1/proto\",\n    \"timestamp\": 0\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:21261/relay/v1/auto/messages",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21261",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Message Publication Node2",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:21161/relay/v1/auto/messages/%2Fmy-app%2F2%2Fchatroom-1%2Fproto",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "21161",
+							"path": [
+								"relay",
+								"v1",
+								"auto",
+								"messages",
+								"%2Fmy-app%2F2%2Fchatroom-1%2Fproto"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
