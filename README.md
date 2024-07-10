@@ -36,12 +36,10 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#Configuration">Configuration</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#Building-the-Application">Building the Application</a></li>
-    <li><a href="#Running-the-Application">Running the Application</a></li>
   <li><a href="#Command-Line-Flags">Command Line Flags</a></li>
   <li><a href="#Contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -104,6 +102,7 @@ To start with this project you need to follow the steps as below.
 Before you begin, ensure you have the following installed:
 - Rust 1.66+
 - Docker
+- JQ
 
 ### Library used
  ```
@@ -115,157 +114,11 @@ Before you begin, ensure you have the following installed:
  - serial_test
  ```
 
-## Configuration
-
-1. Start a Waku Node:
-```
-docker run -i -t \
-    -p 21161:21161 \
-    -p 21162:21162 \
-    -p 21163:21163 \
-    -p 21164:21164 \
-    -p 21165:21165 \
-    wakuorg/nwaku:v0.24.0 \
-    --listen-address=0.0.0.0 \
-    --rest=true \
-    --rest-admin=true \
---websocket-support=true \
---log-level=TRACE \
---rest-relay-cache-capacity=100 \
---websocket-port=21163 \
---rest-port=21161 \
---tcp-port=21162 \
---discv5-udp-port=21164 \
---rest-address=0.0.0.0 \
---nat=extip:172.18.111.226 \
---peer-exchange=true \
---discv5-discovery=true \
---relay=true
-```
-2. Verify Node Information:
-
-```
-curl --location 'localhost:21161/debug/v1/info'
-```
-3. Start a Second Node:
-
-```
-docker run -i -t \
-    -p 21261:21161 \
-    -p 21262:21162 \
-    -p 21263:21163 \
-    -p 21264:21164 \
-    -p 21265:21165 \
-    wakuorg/nwaku:v0.24.0 \
-    --listen-address=0.0.0.0 \
-    --rest=true \
-    --rest-admin=true \
-    --websocket-support=true \
-    --log-level=TRACE \
-    --rest-relay-cache-capacity=100 \
-    --websocket-port=21263 \
-    --rest-port=21161 \
-    --tcp-port=21262 \
-    --discv5-udp-port=21264 \
-    --rest-address=0.0.0.0 \
-    --nat=extip:172.18.111.227 \
-    --peer-exchange=true \
-    --discv5-discovery=true \
-    --relay=true \
-    --discv5-bootstrap-node=<enrUri_stored_from_step 2>
-
-```
-4. Create a Docker Network:
-```
- docker network create --driver bridge --subnet 172.18.0.0/16 --gateway 172.18.0.1 waku
-```
-5. Attach Node Containers to the Network:
-
-```
-docker network connect --ip 172.18.111.226 waku <container_id_node1>
-docker network connect --ip 172.18.111.227 waku <container_id_node2>
-```
-6. Verify Auto-connection:
-
-Verification with waku api
-```
-curl --location 'localhost:21161/admin/v1/peers'
-```
-
-Verification with docker command:
-```sh
-docker network inspect waku
-```
-
-Sample of response:
-```
-[
-    {
-        "Name": "waku",
-        "Id": "aca133f767b5efcadc670087f75a58a2bf27ae1befb80f96b0c79f41077e994a",
-        "Created": "2024-07-06T14:33:33.56994768Z",
-        "Scope": "local",
-        "Driver": "bridge",
-        "EnableIPv6": false,
-        "IPAM": {
-            "Driver": "default",
-            "Options": {},
-            "Config": [
-                {
-                    "Subnet": "172.18.0.0/16",
-                    "Gateway": "172.18.0.1"
-                }
-            ]
-        },
-        "Internal": false,
-        "Attachable": false,
-        "Ingress": false,
-        "ConfigFrom": {
-            "Network": ""
-        },
-        "ConfigOnly": false,
-        "Containers": {
-            "98a31ac476d37fba4c9957cd6788f039e5d23ad6a236962c568c421a1016409d": {
-                "Name": "clever_lewin",
-                "EndpointID": "f67e809af2ac26a7688da2fa393606c96e210a17a3db6d9bb576560f68b24b6b",
-                "MacAddress": "02:42:ac:12:6f:e2",
-                "IPv4Address": "172.18.111.226/16",
-                "IPv6Address": ""
-            },
-            "b67189897b2e020217285ce178a03750e706238678309267dd21632b69028dd8": {
-                "Name": "epic_liskov",
-                "EndpointID": "47524b5cf378a3e22cd28a4e1ca2e42757aa82bad9caa281e62a74694ed42455",
-                "MacAddress": "02:42:ac:12:6f:e3",
-                "IPv4Address": "172.18.111.227/16",
-                "IPv6Address": ""
-            }
-        },
-        "Options": {},
-        "Labels": {}
-    }
-]
-```
-
-Expect Response with connected as `true`
-```
-[
-    {
-        "multiaddr": "/ip4/172.18.111.227/tcp/21262/p2p/16Uiu2HAmGYaB9meUF5FjQ9P7vtAtX25Am2CV63R5vZ8V3jzGQMMB",
-        "protocols": [
-            {
-                "protocol": "/vac/waku/relay/2.0.0",
-                "connected": true
-            }
-        ]
-    }
-]
-```
-
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
-Clone the repository locally and execute the respective test xml file located in dir suiteXMLs.
+Clone the repository locally and execute shell file to setup and execute test.
 <div align="center">
 
 [//]: # (<img src="swagger.png" alt="Logo" >)
@@ -274,6 +127,13 @@ Clone the repository locally and execute the respective test xml file located in
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Building the Application
+
+### Build and Execute Test Locally
+
+```shell
+sh run.sh
+```
+### Build and Execute Application via Github Action
 
 To build your application with Github Action and run your test in action runner you can raise your PR against the main and can see the execution.
 
@@ -300,25 +160,6 @@ https://github.com/shashankshampi/waka-waka-waku/actions/runs/9829568324/job/271
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Running the Application
-
-You can run the application directly with the following command:
-
-1. Build Your Application
-```sh
-cargo build --release
-```
-
-2. Run Your Application
-```sh
-cargo run --release
-```
-3. Run Test in sequential order
-
-```sh
-cargo test --test integration_tests -- --test-threads=1
-```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
