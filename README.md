@@ -135,13 +135,15 @@ sh run.sh
 ```
 ### Build and Execute Application via Github Action
 
-To build your application with Github Action and run your test in action runner you can raise your PR against the main and can see the execution.
+To build your application with Github Action and run your test in action by git push your PR (automatically setup everything and run test) or execute it via with github dispatch manually as per requirement.
 
 1. Action URL:
 
 ```html
-https://github.com/shashankshampi/waka-waka-waku/actions
+https://github.com/shashankshampi/waka-waka-waku/actions/workflows/pipeline.yml
 ```
+
+<img src="files/git_dispatch.png" alt="sample_run" width="400" height="100">
 
 2. Steps to start waku docker nodes with pipeline is written over:
 
